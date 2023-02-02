@@ -669,7 +669,7 @@ class DefaultAssetPickerBuilderDelegate
     super.textDelegate,
     super.locale,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
-    this.previewThumbnailSize,
+    this.previewThumbnailSize= defaultAssetSize,
     this.specialPickerType,
     this.keepScrollOffset = false,
   }) {
@@ -2005,7 +2005,10 @@ class DefaultAssetPickerBuilderDelegate
 
   @override
   Widget selectIndicator(BuildContext context, int index, AssetEntity asset) {
-    final double indicatorSize = context.mediaQuery.size.width / gridCount / 3;
+    double indicatorSize = context.mediaQuery.size.width / gridCount / 3;
+    if(context.mediaQuery.size.width >context.mediaQuery.size.height){
+      indicatorSize=35;
+    }
     final Duration duration = switchingPathDuration * 0.75;
     return Selector<DefaultAssetPickerProvider, String>(
       selector: (_, DefaultAssetPickerProvider p) => p.selectedDescriptions,
@@ -2062,7 +2065,10 @@ class DefaultAssetPickerBuilderDelegate
 
   @override
   Widget selectedBackdrop(BuildContext context, int index, AssetEntity asset) {
-    final double indicatorSize = context.mediaQuery.size.width / gridCount / 3;
+    double indicatorSize = context.mediaQuery.size.width / gridCount / 3;
+    if(context.mediaQuery.size.width >context.mediaQuery.size.height){
+      indicatorSize=35;
+    }
     return Positioned.fill(
       child: GestureDetector(
         onTap: isPreviewEnabled ? () => viewAsset(context, index, asset) : null,

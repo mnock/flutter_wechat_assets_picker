@@ -10,6 +10,6 @@ const int defaultMaxAssetsCount = 9;
 
 /// Default theme color from WeChat.
 const Color defaultThemeColorWeChat = Color(0xff00bc56);
-
+const ThumbnailSize defaultAssetSize = ThumbnailSize.square(500);
 const ThumbnailSize defaultAssetGridPreviewSize = ThumbnailSize.square(200);
 const ThumbnailSize defaultPathThumbnailSize = ThumbnailSize.square(80);

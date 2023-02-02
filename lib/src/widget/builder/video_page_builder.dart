@@ -77,7 +77,25 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
   Future<void> initializeVideoPlayerController() async {
     _isInitializing = true;
     _isLocallyAvailable = true;
-    final String? url = await widget.asset.getMediaUrl();
+    String? url;
+    try {
+      try {
+        url = await widget.asset.getMediaUrl();
+      } catch (e) {
+        realDebugPrint('Error when initialize video url: $e');
+        var file = await widget.asset.originFile;
+        url = "file://${file?.path}";
+      }
+    } catch (e) {
+      realDebugPrint('Error when initialize video url: $e');
+    }
+    //final String? url = await widget.asset.getMediaUrl();
+    // runZoned(() async{
+    //   url = await widget.asset.getMediaUrl();
+    // }, onError: (dynamic e, StackTrace stack) {
+    //   realDebugPrint('Error when initialize video url: $url');
+    // });
+
     if (url == null) {
       hasErrorWhenInitializing = true;
       if (mounted) {
@@ -155,36 +173,37 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
         if (!widget.hasOnlyOneVideoAndMoment)
           ValueListenableBuilder<bool>(
             valueListenable: isPlaying,
-            builder: (_, bool value, __) => GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: value
-                  ? playButtonCallback
-                  : widget.delegate.switchDisplayingDetail,
-              child: Center(
-                child: AnimatedOpacity(
-                  duration: kThemeAnimationDuration,
-                  opacity: value ? 0.0 : 1.0,
-                  child: GestureDetector(
-                    onTap: playButtonCallback,
-                    child: DecoratedBox(
-                      decoration: const BoxDecoration(
-                        boxShadow: <BoxShadow>[
-                          BoxShadow(color: Colors.black12)
-                        ],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        value
-                            ? Icons.pause_circle_outline
-                            : Icons.play_circle_filled,
-                        size: 70.0,
-                        color: Colors.white,
+            builder: (_, bool value, __) =>
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: value
+                      ? playButtonCallback
+                      : widget.delegate.switchDisplayingDetail,
+                  child: Center(
+                    child: AnimatedOpacity(
+                      duration: kThemeAnimationDuration,
+                      opacity: value ? 0.0 : 1.0,
+                      child: GestureDetector(
+                        onTap: playButtonCallback,
+                        child: DecoratedBox(
+                          decoration: const BoxDecoration(
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(color: Colors.black12)
+                            ],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            value
+                                ? Icons.pause_circle_outline
+                                : Icons.play_circle_filled,
+                            size: 70.0,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
           ),
       ],
     );
@@ -200,7 +219,7 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
             child: ScaleText(
               Singleton.textDelegate.loadFailed,
               semanticsLabel:
-                  Singleton.textDelegate.semanticsTextDelegate.loadFailed,
+              Singleton.textDelegate.semanticsTextDelegate.loadFailed,
             ),
           );
         }
@@ -213,9 +232,11 @@ class _VideoPageBuilderState extends State<VideoPageBuilder> {
         return Semantics(
           onLongPress: playButtonCallback,
           onLongPressHint:
-              Singleton.textDelegate.semanticsTextDelegate.sActionPlayHint,
+          Singleton.textDelegate.semanticsTextDelegate.sActionPlayHint,
           child: GestureDetector(
-            onLongPress: MediaQuery.of(context).accessibleNavigation
+            onLongPress: MediaQuery
+                .of(context)
+                .accessibleNavigation
                 ? playButtonCallback
                 : null,
             child: _contentBuilder(context),
