@@ -52,7 +52,8 @@ abstract class AssetPickerBuilderDelegate<Asset, Path> {
     Color? themeColor,
     AssetPickerTextDelegate? textDelegate,
     Locale? locale,
-  })  : assert(
+  })  : assert(gridCount > 0, 'gridCount must be greater than 0.'),
+        assert(
           pickerTheme == null || themeColor == null,
           'Theme and theme color cannot be set at the same time.',
         ),
@@ -403,7 +404,7 @@ abstract class AssetPickerBuilderDelegate<Asset, Path> {
             textDelegate.gifIndicator,
             style: TextStyle(
               color: isAppleOS
-                  ? theme.textTheme.bodyText2?.color
+                  ? theme.textTheme.bodyMedium?.color
                   : theme.primaryColor,
               fontSize: 13,
               fontWeight: FontWeight.w500,
@@ -493,7 +494,7 @@ abstract class AssetPickerBuilderDelegate<Asset, Path> {
             Expanded(
               child: ScaleText(
                 textDelegate.accessAllTip,
-                style: context.themeData.textTheme.caption?.copyWith(
+                style: context.themeData.textTheme.bodySmall?.copyWith(
                   fontSize: 14,
                 ),
                 semanticsLabel: semanticsTextDelegate.accessAllTip,
@@ -1233,11 +1234,10 @@ class DefaultAssetPickerBuilderDelegate
     List<AssetEntity> currentAssets, {
     Widget? specialItem,
   }) {
+    final DefaultAssetPickerProvider p =
+        context.read<DefaultAssetPickerProvider>();
     final int length = currentAssets.length;
-    final PathWrapper<AssetPathEntity>? currentWrapper = context
-        .select<DefaultAssetPickerProvider, PathWrapper<AssetPathEntity>?>(
-      (DefaultAssetPickerProvider p) => p.currentPath,
-    );
+    final PathWrapper<AssetPathEntity>? currentWrapper = p.currentPath;
     final AssetPathEntity? currentPathEntity = currentWrapper?.path;
 
     if (specialItem != null) {
@@ -1260,11 +1260,11 @@ class DefaultAssetPickerBuilderDelegate
       return const SizedBox.shrink();
     }
 
-    final bool hasMoreToLoad = context.select<DefaultAssetPickerProvider, bool>(
-      (DefaultAssetPickerProvider p) => p.hasMoreToLoad,
-    );
-    if (index == length - gridCount * 3 && hasMoreToLoad) {
-      context.read<DefaultAssetPickerProvider>().loadMoreAssets();
+    if (p.hasMoreToLoad) {
+      if ((p.pageSize <= gridCount * 3 && index == length - 1) ||
+          index == length - gridCount * 3) {
+        p.loadMoreAssets();
+      }
     }
 
     final AssetEntity asset = currentAssets.elementAt(currentIndex);
@@ -1513,8 +1513,8 @@ class DefaultAssetPickerBuilderDelegate
                 : textDelegate.confirm,
             style: TextStyle(
               color: p.isSelectedNotEmpty
-                  ? theme.textTheme.bodyText1?.color
-                  : theme.textTheme.caption?.color,
+                  ? theme.textTheme.bodyLarge?.color
+                  : theme.textTheme.bodySmall?.color,
               fontSize: 17,
               fontWeight: FontWeight.normal,
             ),
@@ -1657,7 +1657,7 @@ class DefaultAssetPickerBuilderDelegate
                       ),
                     ],
                   ),
-                  style: context.themeData.textTheme.caption?.copyWith(
+                  style: context.themeData.textTheme.bodySmall?.copyWith(
                     fontSize: 14,
                   ),
                 ),
@@ -1888,7 +1888,7 @@ class DefaultAssetPickerBuilderDelegate
                                 ScaleText(
                                   '($semanticsCount)',
                                   style: TextStyle(
-                                    color: theme.textTheme.caption?.color,
+                                    color: theme.textTheme.bodySmall?.color,
                                     fontSize: 17,
                                   ),
                                   maxLines: 1,
@@ -1970,7 +1970,7 @@ class DefaultAssetPickerBuilderDelegate
                 style: TextStyle(
                   color: p.isSelectedNotEmpty
                       ? null
-                      : c.themeData.textTheme.caption?.color,
+                      : c.themeData.textTheme.bodySmall?.color,
                   fontSize: 17,
                 ),
                 maxScaleFactor: 1.2,
@@ -2022,7 +2022,7 @@ class DefaultAssetPickerBuilderDelegate
           decoration: BoxDecoration(
             border: !selected
                 ? Border.all(
-                    color: context.themeData.selectedRowColor,
+                    color: context.themeData.unselectedWidgetColor,
                     width: indicatorSize / 25,
                   )
                 : null,
@@ -2081,7 +2081,7 @@ class DefaultAssetPickerBuilderDelegate
               padding: EdgeInsets.all(indicatorSize * .35),
               color: selected
                   ? theme.colorScheme.primary.withOpacity(.45)
-                  : theme.backgroundColor.withOpacity(.1),
+                  : theme.colorScheme.background.withOpacity(.1),
               child: selected && !isSingleAssetMode
                   ? Align(
                       alignment: AlignmentDirectional.topStart,
@@ -2093,7 +2093,7 @@ class DefaultAssetPickerBuilderDelegate
                           child: Text(
                             '${index + 1}',
                             style: TextStyle(
-                              color: theme.textTheme.bodyText1?.color
+                              color: theme.textTheme.bodyLarge?.color
                                   ?.withOpacity(.75),
                               fontWeight: FontWeight.w600,
                               height: 1,

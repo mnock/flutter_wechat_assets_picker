@@ -40,7 +40,8 @@ abstract class AssetPickerViewerBuilderDelegate<Asset, Path> {
     this.maxAssets,
     this.shouldReversePreview = false,
     this.selectPredicate,
-  });
+  })  : assert(maxAssets == null || maxAssets > 0),
+        assert(currentIndex >= 0);
 
   /// [ChangeNotifier] for photo selector viewer.
   /// 资源预览器的状态保持
@@ -860,10 +861,12 @@ class DefaultAssetPickerViewerBuilderDelegate
             child: ScaleText(
               buildText(),
               style: TextStyle(
-                color: themeData.textTheme.bodyText1?.color,
+                color: themeData.textTheme.bodyLarge?.color,
                 fontSize: 17,
                 fontWeight: FontWeight.normal,
               ),
+              overflow: TextOverflow.fade,
+              softWrap: false,
               semanticsLabel: () {
                 if (isWeChatMoment && hasVideo) {
                   return semanticsTextDelegate.confirm;
